@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/fragment_main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="start"
+        android:orientation="vertical">
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:background="@drawable/shape"
+        android:elevation="5dp"
+        android:id="@+id/design_navigation_view1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemTextAppearanceActive="@style/bottom_select_text"
+        app:itemTextAppearanceInactive="@style/bottom_normal_text"
+        app:itemIconSize="25sp"
+        android:layout_gravity="bottom"
+        app:menu="@menu/design_music_app_navigation_items"></com.google.android.material.bottomnavigation.BottomNavigationView>
+
+</LinearLayout>
