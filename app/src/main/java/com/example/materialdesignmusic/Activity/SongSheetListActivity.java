@@ -30,6 +30,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.example.materialdesignmusic.Apdater.SongSheetPlayListInfoAdpater;
+import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.CommonData.MyApplication;
 import com.example.materialdesignmusic.CommonMethods.BitmapMethods;
 import com.example.materialdesignmusic.JSONDATA.SongSheetInfo;
@@ -60,16 +61,22 @@ public class SongSheetListActivity extends Activity {
     private List<SongSheetPlayListDetail> songSheetPlayListDetailList = new ArrayList<>();
     ProgressDialog dialog;
     SongSheetInfo songSheetInfo;
-    private Handler handler = new Handler() {
+    public static SongSheetListActivity insthis = null;
+    private static SongSheetPlayListInfoAdpater songSheetPlayListInfoAdpater;
+    public Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
+
             switch (msg.what) {
                 case 1001:
-                    SongSheetPlayListInfoAdpater songSheetPlayListInfoAdpater = new SongSheetPlayListInfoAdpater(songSheetPlayListDetailList, songSheetInfo, getApplicationContext());
                     recyclerView.setItemViewCacheSize(50);
                     recyclerView.setAdapter(songSheetPlayListInfoAdpater);
                     dialog.dismiss();
+                    break;
+                case 1002:
+                    System.out.println("更新");
+                    songSheetPlayListInfoAdpater.notifyDataSetChanged();
                     break;
             }
         }
@@ -80,6 +87,7 @@ public class SongSheetListActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.song_sheet_list_activity);
+        insthis = this;
         setHalfTransparent();
         setFitSystemWindow(false);
         toolbar = findViewById(R.id.song_sheet_toolbar4);
@@ -126,17 +134,7 @@ public class SongSheetListActivity extends Activity {
         songSheetInfo = (SongSheetInfo) intent.getSerializableExtra("object");
         dialog = ProgressDialog.show(this, "歌曲", "歌曲正在加载中...");
         NetworkUtil.requestUrlToData("/playlist/detail?id=" + songSheetInfo.getId(), new GetSongPlaylistDeatil());
-//        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-//            @Override
-//            public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-//                System.out.println(i);
-//                if(i < -350) {
-//                    toolbar.setTitle(songSheetInfo.getName());
-//                }else {
-//                    toolbar.setTitle("");
-//                }
-//            }
-//        });
+
     }
 
     /**
@@ -185,6 +183,7 @@ public class SongSheetListActivity extends Activity {
                     songSheetPlayListDetail.setArList(arBean);
                     songSheetPlayListDetailList.add(songSheetPlayListDetail);
                 }
+                songSheetPlayListInfoAdpater = new SongSheetPlayListInfoAdpater(songSheetPlayListDetailList, songSheetInfo, getApplicationContext());
                 Message message = new Message();
                 message.what = 1001;
                 handler.sendMessage(message);

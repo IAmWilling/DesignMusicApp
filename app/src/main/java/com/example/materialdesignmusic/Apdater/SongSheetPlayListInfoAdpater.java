@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -77,6 +78,12 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
             ((HeaderViewHolder)holder).despation.setText((String)songSheetInfo.getDescription());
             long shareCount = songSheetPlayListDetails.get(0).getShareCount();
             long commentCount = songSheetPlayListDetails.get(0).getCommentCount();
+            ((HeaderViewHolder)holder).toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SongSheetListActivity.insthis.finish();
+                }
+            });
             if(shareCount > 0) {
                 ((HeaderViewHolder)holder).share.setText( shareCount+"");
             }else {
@@ -112,6 +119,19 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
             }
             //body布局
             ((Holder)holder).song_index.setText(position + "");
+            if(CommonData.mediaPlayer != null && CommonData.nowMusicId != 0) {
+                if(CommonData.nowMusicId == songSheetPlayListDetail.getId()) {
+                    ((Holder)holder).playing.setVisibility(View.VISIBLE);
+                    ((Holder)holder).song_index.setVisibility(View.GONE);
+                }else {
+                    ((Holder)holder).playing.setVisibility(View.GONE);
+                    ((Holder)holder).song_index.setVisibility(View.VISIBLE);
+                }
+
+            }else {
+                ((Holder)holder).playing.setVisibility(View.GONE);
+                ((Holder)holder).song_index.setVisibility(View.VISIBLE);
+            }
             String zj = "";
             List<SongSheetPlayListDetail.ArBean> arBeans = (List<SongSheetPlayListDetail.ArBean>) songSheetPlayListDetail.getArList();
             for(int i = 0;i < arBeans.size(); i++) {
@@ -145,6 +165,7 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
     public  class Holder extends RecyclerView.ViewHolder{
         public TextView name,songPerson,song_index,ismv;
         public LinearLayout linearLayout;
+        public ImageView playing;
         public Holder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.song_name);
@@ -152,6 +173,7 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
             song_index = itemView.findViewById(R.id.song_index);
             ismv = itemView.findViewById(R.id.id_song_mv);
             linearLayout = itemView.findViewById(R.id.song_sheet_playlistdetail_linearLayout);
+            playing = itemView.findViewById(R.id.song_playing_red);
         }
     }
     public  class HeaderViewHolder extends RecyclerView.ViewHolder {
@@ -159,6 +181,7 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
         public TextView title,nickname,despation,share,comment;
         public CollapsingToolbarLayout collapsingToolbarLayout;
         public ImageView bgCover,smallCover,avatar;
+        public Toolbar toolbar;
 
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -172,6 +195,7 @@ public class SongSheetPlayListInfoAdpater extends RecyclerView.Adapter<RecyclerV
             despation = itemView.findViewById(R.id.despation1);
             comment = itemView.findViewById(R.id.track_content_count);
             share = itemView.findViewById(R.id.share_count);
+            toolbar = itemView.findViewById(R.id.song_sheet_toolbar1);
         }
     }
 

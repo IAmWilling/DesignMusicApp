@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,6 +29,7 @@ import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.materialdesignmusic.Activity.SongPlayActivity;
+import com.example.materialdesignmusic.Activity.SongSheetListActivity;
 import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.CommonData.MyApplication;
 import com.example.materialdesignmusic.CommonMethods.BitmapMethods;
@@ -41,6 +43,7 @@ public class PlayNotification {
     public Notification notification;
     private static NotificationManager manager =(NotificationManager) MyApplication.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
     public static RemoteViews notificationView = new RemoteViews(MyApplication.getContext().getPackageName(),R.layout.play_notice_bar_view);
+    public static RemoteViews notificationViewSmall = new RemoteViews(MyApplication.getContext().getPackageName(),R.layout.play_notice_bar_small);
     private Thread threadTime = null;
     public PlayNotification(){
         //判断SDK
@@ -80,6 +83,10 @@ public class PlayNotification {
     }
     public void show(){
         initReceiver();
+        Intent startIntent = new Intent(MyApplication.getContext(),SongPlayActivity.class);
+//        startIntent.putExtra("object",CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex));
+//        startIntent.putExtra("index",CommonData.musicIndex);
+        PendingIntent pendingIntentActivity = PendingIntent.getActivity(MyApplication.getContext(),100,startIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         notification = new NotificationCompat.Builder(MyApplication.getContext(),"playnotice")
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -87,26 +94,33 @@ public class PlayNotification {
 //                .setAutoCancel(true)
                 .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
                 .setCustomBigContentView(notificationView)
+                .setCustomContentView(notificationViewSmall)
                 .setPriority(NotificationCompat.PRIORITY_MAX)//设置最大优先级
                 .setOnlyAlertOnce(true)
+                .setContentIntent(pendingIntentActivity)
                 .build();
         notification.flags |= Notification.FLAG_NO_CLEAR;
+
+
         Intent intent = new Intent("com.example.materialdesignmusic.playnnotification");
         intent.putExtra("type",1);//上一首
         PendingIntent pendingIntentPrev = PendingIntent.getBroadcast(MyApplication.getContext(),1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         notificationView.setOnClickPendingIntent(R.id.notic_btn_previous,pendingIntentPrev);
 
+
         intent.putExtra("type",2);//暂停或播放
         PendingIntent pendingIntentpauseplay = PendingIntent.getBroadcast(MyApplication.getContext(),2,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         notificationView.setOnClickPendingIntent(R.id.notic_btn_playandpause,pendingIntentpauseplay);
+        notificationViewSmall.setOnClickPendingIntent(R.id.notic_btn_playandpause_small,pendingIntentpauseplay);
 
         intent.putExtra("type",3);//下一首
         PendingIntent pendingIntentNext = PendingIntent.getBroadcast(MyApplication.getContext(),3,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         notificationView.setOnClickPendingIntent(R.id.notic_btn_next,pendingIntentNext);
+        notificationViewSmall.setOnClickPendingIntent(R.id.notic_btn_next_small,pendingIntentNext);
 
-        intent.putExtra("type",50);//下一首
-        PendingIntent pendingIntentActivity = PendingIntent.getBroadcast(MyApplication.getContext(),50,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationView.setOnClickPendingIntent(R.id.notic_actiity,pendingIntentActivity);
+//        intent.putExtra("type",50);//下一首
+//        PendingIntent pendingIntentActivity = PendingIntent.getBroadcast(MyApplication.getContext(),50,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+//        notificationView.setOnClickPendingIntent(R.id.notic_actiity,pendingIntentActivity);
 
 
     }
@@ -135,6 +149,9 @@ public class PlayNotification {
                                 super.run();
                                 try {
                                     Thread.sleep(1500);
+                                    Message msg = new Message();
+                                    msg.what = 1002;
+                                    SongSheetListActivity.insthis.handler.sendMessage(msg);
                                     Intent intent1 = new Intent(MyApplication.getContext(), MusicPlayService.class);
                                     //发送切歌服务 上一首
                                     intent1.putExtra("type",2);
@@ -153,12 +170,12 @@ public class PlayNotification {
                     if(CommonData.mediaPlayer.isPlaying()) {
                         CommonData.mediaPlayer.pause();
                         notificationView.setImageViewResource(R.id.notic_btn_playandpause,R.drawable.play_gray);
-
+                        notificationViewSmall.setImageViewResource(R.id.notic_btn_playandpause_small,R.drawable.play_gray);
                     }else {
 
                         CommonData.mediaPlayer.start();
                         notificationView.setImageViewResource(R.id.notic_btn_playandpause,R.drawable.pause_gray);
-
+                        notificationViewSmall.setImageViewResource(R.id.notic_btn_playandpause_small,R.drawable.pause_gray);
                     }
                     //发送给SongPlayActivity 广播接收变化
                     Intent playandpauseIntent = new Intent();
@@ -182,6 +199,9 @@ public class PlayNotification {
                                 super.run();
                                 try {
                                     Thread.sleep(1500);
+                                    Message msg = new Message();
+                                    msg.what = 1002;
+                                    SongSheetListActivity.insthis.handler.sendMessage(msg);
                                     Intent intent1 = new Intent(MyApplication.getContext(), MusicPlayService.class);
                                     //发送切歌服务 上一首
                                     intent1.putExtra("type",3);
@@ -198,15 +218,17 @@ public class PlayNotification {
                 case 4://表示切换 暂停或播放状态
                     if(CommonData.mediaPlayer.isPlaying()) {
                         notificationView.setImageViewResource(R.id.notic_btn_playandpause,R.drawable.pause_gray);
+                        notificationViewSmall.setImageViewResource(R.id.notic_btn_playandpause_small,R.drawable.pause_gray);
 
                     }else {
                         notificationView.setImageViewResource(R.id.notic_btn_playandpause,R.drawable.play_gray);
-
+                        notificationViewSmall.setImageViewResource(R.id.notic_btn_playandpause_small,R.drawable.play_gray);
                     }
                     manager.notify(1,notification);
                     break;
                 case 1001:
                     notificationView.setTextViewText(R.id.notic_music_name,CommonData.nowMusicName);
+                    notificationViewSmall.setTextViewText(R.id.notic_music_name_small,CommonData.nowMusicName);
                     String zj = "";
                     List<SongSheetPlayListDetail.ArBean> arBeans = (List<SongSheetPlayListDetail.ArBean>) CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getArList();
                     for(int i = 0;i < arBeans.size(); i++) {
@@ -217,12 +239,13 @@ public class PlayNotification {
                         }
                     }
                     notificationView.setTextViewText(R.id.notic_music_detail_name,zj+ " - " + ((SongSheetPlayListDetail.AlBean)CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getAl()).getName());
-//                    notificationView.setImageViewBitmap(R.id.notic_img,CommonData.nowMusicBitmap);
+                    notificationViewSmall.setTextViewText(R.id.notic_music_detail_name_small,zj+ " - " + ((SongSheetPlayListDetail.AlBean)CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getAl()).getName());
                     Glide.with(context).asBitmap().diskCacheStrategy(DiskCacheStrategy.ALL).load(CommonData.nowPicUrl)
                             .into(new SimpleTarget<Bitmap>() {
                                 @Override
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                     notificationView.setImageViewBitmap(R.id.notic_img,resource);
+                                    notificationViewSmall.setImageViewBitmap(R.id.notic_img_small,resource);
                                     manager.notify(1,notification);
                                 }
                             });

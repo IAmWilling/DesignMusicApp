@@ -67,7 +67,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
     private TextView currentTimeView,durationView;
     private ProgressDialog dialog;
     private SeekBar seekBar;
-    SongSheetPlayListDetail songSheetPlayListDetail;
+    SongSheetPlayListDetail songSheetPlayListDetail = null;
     private ObjectAnimator objectAnimator = null;
     public static MusicPlayUIReceiver musicPlayUIReceiver = null;
     private long prelongTim = 0;    //定义上次单机的时间
@@ -97,9 +97,18 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         setFitSystemWindow(false);
 
         Intent intent = getIntent();
+        if((SongSheetPlayListDetail) intent.getSerializableExtra("object") != null) {
+            songSheetPlayListDetail = (SongSheetPlayListDetail) intent.getSerializableExtra("object");
+        }else {
+            songSheetPlayListDetail = CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex);
+        }
+        if(intent.getIntExtra("index",-1) != -1){
+            CommonData.musicIndex =intent.getIntExtra("index",-1);
+        }else {
 
-        songSheetPlayListDetail = (SongSheetPlayListDetail) intent.getSerializableExtra("object");
-        CommonData.musicIndex = intent.getIntExtra("index",0); //拿到列表正确索引开始播放音乐
+        }
+
+
         if(CommonData.nowMusicId != songSheetPlayListDetail.getId()) {
             //说明不是当前的音乐id直接切换音乐
         }
@@ -169,6 +178,9 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                             super.run();
                             try {
                                 Thread.sleep(1500);
+                                Message msg = new Message();
+                                msg.what = 1002;
+                                SongSheetListActivity.insthis.handler.sendMessage(msg);
                                 Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
                                 //发送切歌服务 上一首
                                 intent.putExtra("type",2);
@@ -198,6 +210,9 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                             super.run();
                             try {
                                 Thread.sleep(1500);
+                                Message msg = new Message();
+                                msg.what = 1002;
+                                SongSheetListActivity.insthis.handler.sendMessage(msg);
                                 Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
                                 //发送切歌服务 下一首
                                 intent.putExtra("type",3);
@@ -266,6 +281,12 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         next.setOnClickListener(this);
         playTypeImage = findViewById(R.id.playing_type);
         playTypeImage.setOnClickListener(this);
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
     /**
     * 设置图片高斯模糊加载
@@ -301,6 +322,9 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                     Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
                     startService(intent);
                 }
+                Message msg = new Message();
+                msg.what = 1002;
+                SongSheetListActivity.insthis.handler.sendMessage(msg);
                 CommonData.nowMusicId = songSheetPlayListDetail.getId();
                 dialog.dismiss();
 
