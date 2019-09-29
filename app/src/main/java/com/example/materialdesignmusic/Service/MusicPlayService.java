@@ -95,7 +95,9 @@ public class MusicPlayService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        if(CommonData.mediaPlayer == null) {
+            CommonData.mediaPlayer = new MediaPlayer();
+        }
 
         int type = intent.getIntExtra("type", 0);
         switch (type) {
@@ -229,6 +231,9 @@ public class MusicPlayService extends Service {
     public void onDestroy() {
         exitFlag = true;
         thread.interrupt();
+        CommonData.mediaPlayer.stop();
+        CommonData.mediaPlayer.release();
+        CommonData.mediaPlayer = null;
         stopForeground(true);
         System.out.println("服务关闭");
         super.onDestroy();

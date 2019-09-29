@@ -197,7 +197,6 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         @Override
         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
             final String strResponse = response.body().string();
-            System.out.println(strResponse);
             Gson gson = new Gson();
             try {
                 JSONObject jsonObject = new JSONObject(strResponse);

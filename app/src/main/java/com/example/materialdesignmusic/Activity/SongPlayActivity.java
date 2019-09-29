@@ -104,11 +104,14 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
             //说明不是当前的音乐id直接切换音乐
         }
         //判断状态
-        if(CommonData.mediaPlayer.isPlaying()) {
-            playandpause.setImageResource(R.drawable.pause_white);
-        }else {
-            playandpause.setImageResource(R.drawable.play_white);
+        if(CommonData.mediaPlayer != null){
+            if(CommonData.mediaPlayer.isPlaying()) {
+                playandpause.setImageResource(R.drawable.pause_white);
+            }else {
+                playandpause.setImageResource(R.drawable.play_white);
+            }
         }
+
 
         myToolbar.setTitle(songSheetPlayListDetail.getName());
         Glide.with(MyApplication.getContext())
@@ -159,7 +162,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                         threadTime = null;
 
                     }
-                    CommonData.musicIndex += 1;
+                    CommonData.musicIndex -= 1;
                     threadTime = new Thread(){
                         @Override
                         public void run() {
