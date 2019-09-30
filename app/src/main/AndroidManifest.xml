@@ -17,19 +17,19 @@
         android:theme="@style/AppTheme">
         <receiver android:name=".Activity.SongPlayActivity$MusicPlayUIReceiver"></receiver>
         <receiver android:name=".Notice.PlayNotification$MyChangeNoticReceiver"></receiver>
-        <activity android:name=".SplashActivity" android:theme="@style/Theme.MyAppTheme">
+        <activity android:launchMode="singleTop" android:name=".SplashActivity" android:theme="@style/Theme.MyAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:launchMode="singleTop" android:name=".MainActivity">
 
         </activity>
-        <activity android:name=".Activity.SongSheetListActivity"></activity>
-        <activity android:name=".Activity.SongPlayActivity" />
-        <service android:name=".Service.MusicPlayService"></service>
+        <activity  android:launchMode="singleTop" android:name=".Activity.SongSheetListActivity"></activity>
+        <activity android:launchMode="singleTop" android:name=".Activity.SongPlayActivity" />
+        <service android:launchMode="singleTop" android:name=".Service.MusicPlayService"></service>
     </application>
 
 
