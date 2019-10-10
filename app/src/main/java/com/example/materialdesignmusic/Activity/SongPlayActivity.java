@@ -45,14 +45,25 @@ import com.example.materialdesignmusic.CommonMethods.BitmapMethods;
 import com.example.materialdesignmusic.CommonMethods.MediaStorePlayer;
 import com.example.materialdesignmusic.CommonMethods.Methods;
 import com.example.materialdesignmusic.JSONDATA.MusicListInfo;
+import com.example.materialdesignmusic.JSONDATA.MusicLyricData;
 import com.example.materialdesignmusic.JSONDATA.SongSheetPlayListDetail;
+import com.example.materialdesignmusic.NetWorkUtil.NetworkUtil;
 import com.example.materialdesignmusic.R;
 import com.example.materialdesignmusic.Service.MusicPlayService;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * 歌曲播放页面
@@ -97,16 +108,21 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         setFitSystemWindow(false);
 
         Intent intent = getIntent();
+        long id = 0;
         if((SongSheetPlayListDetail) intent.getSerializableExtra("object") != null) {
             songSheetPlayListDetail = (SongSheetPlayListDetail) intent.getSerializableExtra("object");
         }else {
             songSheetPlayListDetail = CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex);
+
         }
+
+        System.out.println(id);
         if(intent.getIntExtra("index",-1) != -1){
             CommonData.musicIndex =intent.getIntExtra("index",-1);
         }else {
 
         }
+
 
 
         if(CommonData.nowMusicId != songSheetPlayListDetail.getId()) {
@@ -141,6 +157,57 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         objectAnimator.setInterpolator(lin);
         //结束后的状态
         objectAnimator.setRepeatMode(ValueAnimator.REVERSE);
+//                try {
+//            Class clazz = Settings.class;
+//            Field field = clazz.getDeclaredField("ACTION_MANAGE_OVERLAY_PERMISSION");
+//            Intent intent1 = new Intent(field.get(null).toString());
+//            intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent1.setData(Uri.parse("package:" + getPackageName()));
+//            startActivity(intent1);
+//        } catch (Exception e) {
+//            Log.e("45", Log.getStackTraceString(e));
+//        }
+
+    }
+    //获取歌词
+    public class GetMusicLyric implements okhttp3.Callback {
+
+        @Override
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+        }
+
+        @Override
+        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            final String strResponse = response.body().string();
+            CommonData.NowMusicLyricData.clear(); //清空歌词列表
+            try {
+                JSONObject data = new JSONObject(strResponse);
+                JSONObject lrc = data.getJSONObject("lrc");
+                String str = lrc.getString("lyric");
+                String [] split = str.split("\n");
+                for(String s:split) {
+//                    System.out.println(s);
+                    String[] strK = s.split("]");
+                    List<String> bufferK = new ArrayList<>();
+                    for(String s2:strK) {
+                        bufferK.add(s2.replace("[",""));
+                    }
+                    for (int i = 0;i < bufferK.size() - 1;i++) {
+                        String title = bufferK.get(bufferK.size() - 1);
+                        long time = Methods.minToSecond(bufferK.get(i));
+                        CommonData.NowMusicLyricData.add(new MusicLyricData(title,time));
+                    }
+                }
+                for (MusicLyricData musicLyricData:CommonData.NowMusicLyricData) {
+                    System.out.println("title = " + musicLyricData.getTitle() + "  time = " + musicLyricData.getTime());
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -287,6 +354,9 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                 finish();
             }
         });
+
+
+
     }
     /**
     * 设置图片高斯模糊加载
@@ -322,6 +392,8 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                     Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
                     startService(intent);
                 }
+                //获取歌词
+                NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                 Message msg = new Message();
                 msg.what = 1002;
                 SongSheetListActivity.insthis.handler.sendMessage(msg);
@@ -385,6 +457,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                     currentTimeView.setText(Methods.formattime(CommonData.mediaPlayer.getCurrentPosition()));
                     durationView.setText(Methods.formattime(CommonData.mediaPlayer.getDuration()));
                     seekBar.setProgress((int)(a * 1000));
+
                     break;
                 case "playandpause":
                     if(CommonData.mediaPlayer.isPlaying()) {
@@ -410,6 +483,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                                     if(resource != null) {
                                         Bitmap bitmap = BitmapMethods.setBitmapGaussianBlur(getApplicationContext(),resource,25f);
                                         CommonData.nowMusicBitmap = resource;
+                                        NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                                         super.setResource(bitmap);
                                     }else {
                                         super.setResource(resource);

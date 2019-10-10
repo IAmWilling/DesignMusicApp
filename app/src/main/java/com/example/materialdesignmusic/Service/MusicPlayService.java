@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi;
 import com.example.materialdesignmusic.Activity.SongPlayActivity;
 import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.CommonData.MyApplication;
+import com.example.materialdesignmusic.NetWorkUtil.NetworkUtil;
 import com.example.materialdesignmusic.Notice.PlayNotification;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class MusicPlayService extends Service {
     private final IBinder mBinder = new LocalBinder();
     // Random number generator
     private final Random mGenerator = new Random();
-
+    static Runnable runnable = null;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -74,6 +75,7 @@ public class MusicPlayService extends Service {
                         CommonData.mediaPlayer.setLooping(true);
                         System.out.println("单曲循环");
                     }
+                    NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                     exitFlag = true;
                     thread.interrupt();
                     exitFlag = false;
@@ -144,16 +146,18 @@ public class MusicPlayService extends Service {
             case 2:
                 //上一首
                 exitFlag = false;
+                NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                 thread.interrupt();
                Log.d("CommonData.musicIndex ",CommonData.musicIndex + "");
+               CommonData.NowMusicLyricData.clear();
                 thread = new MusicPlayThread();
                 thread.start();
                 break;
             case 3:
                 //下一首
+                NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                 exitFlag = false;
                 thread.interrupt();
-
                 thread = new MusicPlayThread();
                 thread.start();
                 break;
@@ -183,6 +187,11 @@ public class MusicPlayService extends Service {
                     seekbarIntent.setAction("com.example.materialdesignmusic.musicui");
                     seekbarIntent.putExtra("type", "seekbar");
                     MyApplication.getContext().sendBroadcast(seekbarIntent);
+                    Intent lyricIntent = new Intent();
+                    lyricIntent.setAction("com.example.materialdesignmusic.musiclyric");
+                    lyricIntent.putExtra("type", "musiclyric");
+                    MyApplication.getContext().sendBroadcast(lyricIntent);
+
                 }
 
 

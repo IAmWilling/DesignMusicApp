@@ -23,4 +23,10 @@ public class Methods {
         }
         return min+":"+second;
     }
+    public static long minToSecond(String time) {
+        String[] buffer = time.split(":");
+        float a = Float.valueOf(buffer[0]) * 60;
+        float b = Float.valueOf(buffer[1]) + a;
+        return Float.valueOf(b).longValue();
+    }
 }

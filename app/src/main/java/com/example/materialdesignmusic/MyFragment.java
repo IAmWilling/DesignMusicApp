@@ -105,7 +105,7 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.my_fragment_item,container,false);
         viewLayoutInit(view);
         userInfoView.setOnClickListener(this);
-        String url = "/login/cellphone?phone=&password=";
+        String url = "/login/cellphone?phone=18931893326&password=z123456789";
         NetworkUtil.requestUrlToData(url, new GetUserInfo());
 
         return view;
