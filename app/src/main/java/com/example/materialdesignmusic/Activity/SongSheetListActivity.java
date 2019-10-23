@@ -75,7 +75,7 @@ public class SongSheetListActivity extends Activity {
                     dialog.dismiss();
                     break;
                 case 1002:
-                    System.out.println("更新");
+
                     songSheetPlayListInfoAdpater.notifyDataSetChanged();
                     break;
             }

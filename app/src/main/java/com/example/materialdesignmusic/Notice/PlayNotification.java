@@ -148,7 +148,7 @@ public class PlayNotification {
                             public void run() {
                                 super.run();
                                 try {
-                                    Thread.sleep(1500);
+                                    Thread.sleep(1000);
                                     Message msg = new Message();
                                     msg.what = 1002;
                                     SongSheetListActivity.insthis.handler.sendMessage(msg);
@@ -198,12 +198,12 @@ public class PlayNotification {
                             public void run() {
                                 super.run();
                                 try {
-                                    Thread.sleep(1500);
+                                    Thread.sleep(1000);
                                     Message msg = new Message();
                                     msg.what = 1002;
                                     SongSheetListActivity.insthis.handler.sendMessage(msg);
                                     Intent intent1 = new Intent(MyApplication.getContext(), MusicPlayService.class);
-                                    //发送切歌服务 上一首
+                                    //发送切歌服务
                                     intent1.putExtra("type",3);
                                     MyApplication.getContext().startService(intent1);
                                 } catch (InterruptedException e) {

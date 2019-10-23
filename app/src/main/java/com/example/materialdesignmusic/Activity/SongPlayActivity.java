@@ -9,22 +9,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,28 +32,22 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
-import com.example.materialdesignmusic.Apdater.SongSheetPlayListInfoAdpater;
 import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.CommonData.MyApplication;
 import com.example.materialdesignmusic.CommonMethods.BitmapMethods;
-import com.example.materialdesignmusic.CommonMethods.MediaStorePlayer;
 import com.example.materialdesignmusic.CommonMethods.Methods;
-import com.example.materialdesignmusic.JSONDATA.MusicListInfo;
 import com.example.materialdesignmusic.JSONDATA.MusicLyricData;
 import com.example.materialdesignmusic.JSONDATA.SongSheetPlayListDetail;
 import com.example.materialdesignmusic.NetWorkUtil.NetworkUtil;
 import com.example.materialdesignmusic.R;
 import com.example.materialdesignmusic.Service.MusicPlayService;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import okhttp3.Call;
@@ -75,18 +63,31 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
     WindowManager.LayoutParams layoutParams;
     private Toolbar myToolbar;
     private ImageView playandpause,prev,next,playTypeImage;
-    private TextView currentTimeView,durationView;
+    private TextView currentTimeView,durationView,totalView;
     private ProgressDialog dialog;
+    private LinearLayout totalViewLayout;
     private SeekBar seekBar;
     SongSheetPlayListDetail songSheetPlayListDetail = null;
     private ObjectAnimator objectAnimator = null;
     public static MusicPlayUIReceiver musicPlayUIReceiver = null;
     private long prelongTim = 0;    //定义上次单机的时间
     private Thread threadTime = null;
+    static long total = 0;
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 2002) {
+                totalView.setText(total + "");
+
+            }
+        }
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.song_playing_activity);
+        init();
         /*
         * 注册广播服务
         * */
@@ -103,7 +104,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
 
         instance = this;
         dialog = ProgressDialog.show(this, "歌曲", "准备播放中...");
-        init();
+
         setHalfTransparent();
         setFitSystemWindow(false);
 
@@ -113,8 +114,8 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
             songSheetPlayListDetail = (SongSheetPlayListDetail) intent.getSerializableExtra("object");
         }else {
             songSheetPlayListDetail = CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex);
-
         }
+
 
         System.out.println(id);
         if(intent.getIntExtra("index",-1) != -1){
@@ -157,6 +158,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         objectAnimator.setInterpolator(lin);
         //结束后的状态
         objectAnimator.setRepeatMode(ValueAnimator.REVERSE);
+
 //                try {
 //            Class clazz = Settings.class;
 //            Field field = clazz.getDeclaredField("ACTION_MANAGE_OVERLAY_PERMISSION");
@@ -169,6 +171,32 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
 //        }
 
     }
+
+    //获取歌曲详情
+    public class GetMusicDetail implements okhttp3.Callback {
+        @Override
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+        }
+
+        @Override
+        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            final String strResponse = response.body().string();
+            try {
+                JSONObject data = new JSONObject(strResponse);
+                final long total2 = data.getLong("total");
+                System.out.println("歌曲评论 " + total);
+                total = total2;
+                Message message = new Message();
+                message.what = 2002;
+                handler.sendMessage(message);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     //获取歌词
     public class GetMusicLyric implements okhttp3.Callback {
 
@@ -199,9 +227,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                         CommonData.NowMusicLyricData.add(new MusicLyricData(title,time));
                     }
                 }
-                for (MusicLyricData musicLyricData:CommonData.NowMusicLyricData) {
-                    System.out.println("title = " + musicLyricData.getTitle() + "  time = " + musicLyricData.getTime());
-                }
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -307,6 +333,11 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                     playTypeImage.setImageResource(R.drawable.listloop_white);
                 }
                     break;
+            case R.id.song_comment_layout:
+                Intent intent = new Intent(this,CommentDetail.class);
+                startActivity(intent);
+                System.out.println("6666666666666");
+                break;
         }
     }
 
@@ -354,6 +385,9 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                 finish();
             }
         });
+        totalView = findViewById(R.id.song_comment_total);
+        totalViewLayout = findViewById(R.id.song_comment_layout);
+        totalViewLayout.setOnClickListener(this);
 
 
 
@@ -381,24 +415,29 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                  * 创建图片的同时启动服务进行播放
                  * */
                 //启动音乐服务
+
                 if((CommonData.nowMusicId != songSheetPlayListDetail.getId()) && CommonData.nowMusicId != 0) {
                     //说明不是当前的音乐id直接切换音乐
                     Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
                     //发送切歌服务
                     intent.putExtra("type",1);
+                    System.out.println("切歌 哦哦哦");
                     startService(intent);
                 }else {
                     //就是第一次播放
                     Intent intent = new Intent(SongPlayActivity.this, MusicPlayService.class);
+                    System.out.println("切歌 ddddd");
                     startService(intent);
                 }
                 //获取歌词
                 NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
+
                 Message msg = new Message();
                 msg.what = 1002;
                 SongSheetListActivity.insthis.handler.sendMessage(msg);
                 CommonData.nowMusicId = songSheetPlayListDetail.getId();
                 dialog.dismiss();
+                NetworkUtil.requestUrlToData("/comment/music?id="+CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId()+"&limit=1",new GetMusicDetail());
 
             }else {
                 super.setResource(resource);
@@ -470,7 +509,7 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                     break;
                 case "change":
                     //切换封面
-
+                    NetworkUtil.requestUrlToData("/comment/music?id="+CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId()+"&limit=1",new GetMusicDetail());
                     myToolbar.setTitle(CommonData.nowMusicName);
                     Glide.with(MyApplication.getContext())
                             .load(CommonData.nowPicUrl)
@@ -483,7 +522,6 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
                                     if(resource != null) {
                                         Bitmap bitmap = BitmapMethods.setBitmapGaussianBlur(getApplicationContext(),resource,25f);
                                         CommonData.nowMusicBitmap = resource;
-                                        NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                                         super.setResource(bitmap);
                                     }else {
                                         super.setResource(resource);
@@ -503,7 +541,12 @@ public class SongPlayActivity extends Activity implements View.OnClickListener{
         if(CommonData.nowMusicId != songSheetPlayListDetail.getId()) {
 
         }
-        unregisterReceiver(musicPlayUIReceiver);
+        try{
+            unregisterReceiver(musicPlayUIReceiver);
+        }catch(IllegalArgumentException e) {
+
+        }
+
 
         super.onDestroy();
     }

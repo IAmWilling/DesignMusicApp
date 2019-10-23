@@ -58,7 +58,7 @@ public class MusicPlayService extends Service {
             CommonData.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    System.out.println("结束onCreate");
+
                     Intent playandpauseIntent = new Intent();
                     playandpauseIntent.setAction("com.example.materialdesignmusic.musicui");
                     playandpauseIntent.putExtra("type", "playandpause");
@@ -75,7 +75,6 @@ public class MusicPlayService extends Service {
                         CommonData.mediaPlayer.setLooping(true);
                         System.out.println("单曲循环");
                     }
-                    NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                     exitFlag = true;
                     thread.interrupt();
                     exitFlag = false;
@@ -146,16 +145,15 @@ public class MusicPlayService extends Service {
             case 2:
                 //上一首
                 exitFlag = false;
-                NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
                 thread.interrupt();
                Log.d("CommonData.musicIndex ",CommonData.musicIndex + "");
-               CommonData.NowMusicLyricData.clear();
                 thread = new MusicPlayThread();
                 thread.start();
                 break;
             case 3:
                 //下一首
-                NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
+                CommonData.NowMusicLyricData.clear();
+
                 exitFlag = false;
                 thread.interrupt();
                 thread = new MusicPlayThread();
@@ -172,27 +170,36 @@ public class MusicPlayService extends Service {
         public void run() {
             super.run();
             try {
-                System.out.println("CommonData.musicIndex " + CommonData.musicIndex + "   " + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + " size=" + CommonData.commonSongSheetPlayListDetailList.size());
-                String url = "https://music.163.com/song/media/outer/url?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + ".mp3";
+//                System.out.println("CommonData.musicIndex " + CommonData.musicIndex + "   " + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + " size=" + CommonData.commonSongSheetPlayListDetailList.size());
+                try {
+                    String url = "https://music.163.com/song/media/outer/url?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + ".mp3";
+                    CommonData.mediaPlayer.stop();
+                    CommonData.mediaPlayer.reset();
+                    CommonData.mediaPlayer.setDataSource(url);
+                    System.out.println("线程启动" + CommonData.mediaPlayer);
+                    CommonData.mediaPlayer.prepareAsync();
+                    CommonData.mediaPlayer.setOnPreparedListener(new ListenerSourceOnLoad());
+                    CommonData.NowMusicLyricData.clear();
+                    NetworkUtil.requestUrlToData("/lyric?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId(),new CommonData.GetMusicLyric());
 
-                CommonData.mediaPlayer.stop();
-                CommonData.mediaPlayer.reset();
-                CommonData.mediaPlayer.setDataSource(url);
-                System.out.println("线程启动" + CommonData.mediaPlayer);
-                CommonData.mediaPlayer.prepareAsync();
-                CommonData.mediaPlayer.setOnPreparedListener(new ListenerSourceOnLoad());
-                while ((CommonData.mediaPlayer.getDuration() >= CommonData.mediaPlayer.getCurrentPosition()) && !exitFlag) {
-                    Thread.sleep(1000);
-                    Intent seekbarIntent = new Intent();
-                    seekbarIntent.setAction("com.example.materialdesignmusic.musicui");
-                    seekbarIntent.putExtra("type", "seekbar");
-                    MyApplication.getContext().sendBroadcast(seekbarIntent);
-                    Intent lyricIntent = new Intent();
-                    lyricIntent.setAction("com.example.materialdesignmusic.musiclyric");
-                    lyricIntent.putExtra("type", "musiclyric");
-                    MyApplication.getContext().sendBroadcast(lyricIntent);
+                    while ((CommonData.mediaPlayer.getDuration() >= CommonData.mediaPlayer.getCurrentPosition()) && !exitFlag) {
+                        Thread.sleep(1000);
+                        Intent seekbarIntent = new Intent();
+                        seekbarIntent.setAction("com.example.materialdesignmusic.musicui");
+                        seekbarIntent.putExtra("type", "seekbar");
+                        MyApplication.getContext().sendBroadcast(seekbarIntent);
+                        Intent lyricIntent = new Intent();
+                        lyricIntent.setAction("com.example.materialdesignmusic.musiclyric");
+                        lyricIntent.putExtra("type", "musiclyric");
+                        MyApplication.getContext().sendBroadcast(lyricIntent);
+
+                    }
+                }catch(IndexOutOfBoundsException e){
 
                 }
+
+
+
 
 
             } catch (IOException e) {
@@ -213,6 +220,7 @@ public class MusicPlayService extends Service {
 
             //开始播放
             CommonData.mediaPlayer.start();
+
             Intent playandpauseIntent = new Intent();
             playandpauseIntent.setAction("com.example.materialdesignmusic.musicui");
             CommonData.nowMusicId = CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId();

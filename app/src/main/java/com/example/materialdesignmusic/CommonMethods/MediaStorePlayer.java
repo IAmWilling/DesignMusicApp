@@ -53,7 +53,7 @@ public class MediaStorePlayer {
 
     }
     public static int getDurection() throws IOException {
-        System.out.println(musicUrl.get(musicIndex) + "  " + musicIndex);
+
         mediaPlayer.stop();
         play(musicIndex);
         return mediaPlayer.getDuration();

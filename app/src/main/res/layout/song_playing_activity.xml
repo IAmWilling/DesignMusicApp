@@ -54,6 +54,7 @@
                     android:layout_height="wrap_content"/>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/song_comment_layout"
                 android:layout_marginRight="40dp"
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
@@ -65,7 +66,8 @@
                     android:layout_height="20dp"/>
                 <TextView
                     android:layout_gravity="center"
-                    android:text="999+"
+                    android:id="@+id/song_comment_total"
+                    android:text="0"
                     android:textSize="12sp"
                     android:textColor="@color/colorText"
                     android:layout_width="wrap_content"

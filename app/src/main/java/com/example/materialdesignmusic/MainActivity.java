@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.Activity;
 import android.app.Application;
@@ -29,6 +30,7 @@ import com.example.materialdesignmusic.Activity.SongPlayActivity;
 import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.Notice.PlayNotification;
 import com.example.materialdesignmusic.Service.MusicPlayService;
+import com.example.materialdesignmusic.Service.TuiJianFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.lang.reflect.Field;
@@ -40,10 +42,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     WindowManager.LayoutParams layoutParams;
     private static int count = 0;
     public static MusicLyricReceiver musicLyricReceiver = null;
+    private FragmentManager fManager; //管理Fragment界面
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fManager = getSupportFragmentManager();
         bottomNavigationView = findViewById(R.id.design_navigation_view1);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         initFragment();
@@ -66,19 +71,32 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         Toast.makeText(this, menuItem.getTitle(), Toast.LENGTH_SHORT).show();
         switch(menuItem.getItemId()) {
             case R.id.my:
+                fManager.beginTransaction().hide(fragments[1]).commit();
+                fManager.beginTransaction().show(fragments[0]).commit();
+
                 break;
+            case R.id.music:
+                fManager.beginTransaction().hide(fragments[0]).commit();
+                fManager.beginTransaction().show(fragments[1]).commit();
+
+                break;
+
         }
         return true;
     }
     private void initFragment() {
         MyFragment myFragment = new MyFragment();
-        fragments = new Fragment[]{myFragment};
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_main_layout,myFragment)
+        TuiJianFragment tuiJianFragment = new TuiJianFragment();
+
+        fragments = new Fragment[]{myFragment,tuiJianFragment};
+        fManager.beginTransaction().replace(R.id.fragment_main_layout,myFragment)
                 .show(myFragment).commit();
+        fManager.beginTransaction().add(R.id.fragment_main_layout,tuiJianFragment).commit();
 
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent home = new Intent(Intent.ACTION_MAIN);
@@ -102,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     for (int i = 0;i < CommonData.NowMusicLyricData.size();i++) {
                         long dt = Float.valueOf(CommonData.mediaPlayer.getCurrentPosition() / 1000).longValue();
                         if(dt == CommonData.NowMusicLyricData.get(i).getTime()) {
-                            System.out.println(CommonData.NowMusicLyricData.get(i).getTitle());
+
                             CommonData.musicTextView.setText(CommonData.NowMusicLyricData.get(i).getTitle() + "");
                             CommonData.wm.updateViewLayout(CommonData.musicTextView,CommonData.layoutParams);
                         }
@@ -116,8 +134,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        System.out.println("结束进程1111");
+
         Intent intent = new Intent(this, MusicPlayService.class);
         stopService(intent);
+        CommonData.wm.removeView(CommonData.musicTextView);
     }
 }

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/g1">
-        <item android:title="演出" />
-        <item android:title="商城" />
-        <item android:title="附近的人" />
-        <item android:title="我的订单" />
-    </group>
-    <group android:id="@+id/g2">
+  <group android:id="@+id/g1">
+    <item android:title="演出" />
+    <item android:title="商城" />
+    <item android:title="附近的人" />
+    <item android:title="我的订单" />
+  </group>
+  <group android:id="@+id/g2">
 
-            <item android:title="创作者中心"/>
+    <item android:title="创作者中心"/>
 
-    </group>
-    <group android:id="@+id/g3">
+  </group>
+  <group android:id="@+id/g3">
 
-            <item android:title="定时停止播放"/>
-            <item android:title="扫一扫"/>
-            <item android:title="音乐云盘"/>
+    <item android:title="定时停止播放"/>
+    <item android:title="扫一扫"/>
+    <item android:title="音乐云盘"/>
 
-    </group>
+  </group>
 </menu>

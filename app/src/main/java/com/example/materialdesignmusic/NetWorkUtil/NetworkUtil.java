@@ -15,8 +15,9 @@ public class NetworkUtil {
     public static void requestUrlToData(String Url,okhttp3.Callback callback) {
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.newBuilder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(20,TimeUnit.SECONDS)
+
+                .connectTimeout(10000, TimeUnit.SECONDS)
+                .readTimeout(20000,TimeUnit.SECONDS)
                 .build();
         Request request = new Request.Builder().url(CommonData.LOCALHOST + Url).build();
         okHttpClient.newCall(request).enqueue(callback);

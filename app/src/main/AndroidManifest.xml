@@ -1,36 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.materialdesignmusic">
+    package="com.example.materialdesignmusic" >
+
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".CommonData.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:networkSecurityConfig="@xml/network"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <receiver android:name=".Activity.SongPlayActivity$MusicPlayUIReceiver"></receiver>
-        <receiver android:name=".Notice.PlayNotification$MyChangeNoticReceiver"></receiver>
-        <activity android:launchMode="singleTop" android:name=".SplashActivity" android:theme="@style/Theme.MyAppTheme">
+        android:theme="@style/AppTheme" >
+        <activity   android:launchMode="singleTop" android:name=".Activity.CommentDetail" >
+        </activity>
+
+        <receiver android:name=".Activity.SongPlayActivity$MusicPlayUIReceiver" />
+        <receiver android:name=".Notice.PlayNotification$MyChangeNoticReceiver" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MyAppTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:launchMode="singleTop" android:name=".MainActivity">
-
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop" >
         </activity>
-        <activity  android:launchMode="singleTop" android:name=".Activity.SongSheetListActivity"></activity>
-        <activity android:launchMode="singleTop" android:name=".Activity.SongPlayActivity" />
-        <service android:launchMode="singleTop" android:name=".Service.MusicPlayService"></service>
-    </application>
+        <activity
+            android:name=".Activity.SongSheetListActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".Activity.SongPlayActivity"
+            android:launchMode="singleTop" />
 
+        <service
+            android:name=".Service.MusicPlayService"
+            android:launchMode="singleTop" />
+    </application>
 
 </manifest>

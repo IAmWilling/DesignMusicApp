@@ -6,5 +6,6 @@
     <color name="colorPrimaryText">#212121</color>
     <color name="colorText">#ffffff</color>
     <color name="colorGaryText">#BDBDBD</color>
+    <color name="mycolor">#ffee00ff</color>
     <color name="colorLightPrimary">#c5cae9</color>
 </resources>
