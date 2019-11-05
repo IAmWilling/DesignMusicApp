@@ -173,6 +173,7 @@ public class MusicPlayService extends Service {
 //                System.out.println("CommonData.musicIndex " + CommonData.musicIndex + "   " + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + " size=" + CommonData.commonSongSheetPlayListDetailList.size());
                 try {
                     String url = "https://music.163.com/song/media/outer/url?id=" + CommonData.commonSongSheetPlayListDetailList.get(CommonData.musicIndex).getId() + ".mp3";
+                    System.out.println("歌曲链接 " + url);
                     CommonData.mediaPlayer.stop();
                     CommonData.mediaPlayer.reset();
                     CommonData.mediaPlayer.setDataSource(url);
@@ -193,9 +194,16 @@ public class MusicPlayService extends Service {
                         lyricIntent.putExtra("type", "musiclyric");
                         MyApplication.getContext().sendBroadcast(lyricIntent);
 
+
                     }
                 }catch(IndexOutOfBoundsException e){
-
+                    System.out.println("播放出错1 " + e );
+                }catch (IllegalStateException e) {
+                    System.out.println("播放出错3 " + e );
+                }catch(SecurityException e){
+                    System.out.println("播放出错3 " + e );
+                }catch(IllegalArgumentException e){
+                    System.out.println("播放出错5 " + e );
                 }
 
 

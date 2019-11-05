@@ -3,15 +3,18 @@ package com.example.materialdesignmusic;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.net.Uri;
@@ -33,6 +36,7 @@ import com.example.materialdesignmusic.Service.MusicPlayService;
 import com.example.materialdesignmusic.Service.TuiJianFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
@@ -62,10 +66,36 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         intentFilter.addAction("com.example.materialdesignmusic.musiclyric");
         //注册服务
         registerReceiver(musicLyricReceiver,intentFilter);
+        checkPermission();
+//        try {
+//
+//            CommonData.mediaPlayer.setDataSource("https://music.163.com/song/media/outer/url?id=156630.mp3");
+//            CommonData.mediaPlayer.prepare();
+//            CommonData.mediaPlayer.start();
+//        } catch (IOException e) {
+//            System.out.println(e);
+//            e.printStackTrace();
+//        }
         CommonData.init(); //初始化桌面歌词
 
     }
+    private void checkPermission() {
+        //检查权限（NEED_PERMISSION）是否被授权 PackageManager.PERMISSION_GRANTED表示同意授权
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            //用户已经拒绝过一次，再次弹出权限申请对话框需要给用户一个解释
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission
+                    .WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
+            }
+            //申请权限
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+        } else {
+            Toast.makeText(this, "授权成功！", Toast.LENGTH_SHORT).show();
+            Log.e("45 ", "checkPermission: 已经授权！");
+        }
+    }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         Toast.makeText(this, menuItem.getTitle(), Toast.LENGTH_SHORT).show();

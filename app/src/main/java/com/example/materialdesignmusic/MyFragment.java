@@ -31,6 +31,7 @@ import com.example.materialdesignmusic.Activity.SongSheetListActivity;
 import com.example.materialdesignmusic.Apdater.SongSheetInfoApdater;
 import com.example.materialdesignmusic.CommonData.CommonData;
 import com.example.materialdesignmusic.CommonData.MyApplication;
+import com.example.materialdesignmusic.JSONDATA.CommentData;
 import com.example.materialdesignmusic.JSONDATA.SongSheetInfo;
 import com.example.materialdesignmusic.JSONDATA.UserInfo;
 import com.example.materialdesignmusic.NetWorkUtil.NetworkUtil;
@@ -51,6 +52,7 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.Response;
 
 public class MyFragment extends Fragment implements View.OnClickListener{
@@ -161,7 +163,14 @@ public class MyFragment extends Fragment implements View.OnClickListener{
         @Override
         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
             final String strResponse = response.body().string();
-
+            Headers headers = response.headers();
+            List<String> strings = headers.values("Set-Cookie");
+            String cookie = "";
+            for(String i : strings) {
+                String str[] = i.split(";");
+                cookie += str[0] + ";";
+            }
+            CommonData.COOKIE = cookie;
             Gson gson = new Gson();
             try {
                 JSONObject jsonObject = new JSONObject(strResponse);

@@ -19,7 +19,9 @@ public class NetworkUtil {
                 .connectTimeout(10000, TimeUnit.SECONDS)
                 .readTimeout(20000,TimeUnit.SECONDS)
                 .build();
-        Request request = new Request.Builder().url(CommonData.LOCALHOST + Url).build();
+        Request request = new Request.Builder()
+                .header("Cookie", CommonData.COOKIE)
+                .url(CommonData.LOCALHOST + Url).build();
         okHttpClient.newCall(request).enqueue(callback);
     }
 }

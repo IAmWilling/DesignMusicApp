@@ -40,7 +40,7 @@ public class BannerData {
      */
 
     private String pic;
-    private int targetId;
+    private long targetId;
     private Object adid;
     private int targetType;
     private String titleColor;
@@ -80,11 +80,11 @@ public class BannerData {
         this.pic = pic;
     }
 
-    public int getTargetId() {
+    public long getTargetId() {
         return targetId;
     }
 
-    public void setTargetId(int targetId) {
+    public void setTargetId(long targetId) {
         this.targetId = targetId;
     }
 

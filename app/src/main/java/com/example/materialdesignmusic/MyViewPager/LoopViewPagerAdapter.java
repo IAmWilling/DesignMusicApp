@@ -4,12 +4,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.materialdesignmusic.CommonData.MyApplication;
+import com.example.materialdesignmusic.CommonMethods.SwitchColor;
 import com.example.materialdesignmusic.JSONDATA.BannerData;
 import com.example.materialdesignmusic.R;
 
@@ -27,7 +31,13 @@ public class LoopViewPagerAdapter extends PagerAdapter {
         View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.banner_image_view,container,false);
         int newPosition = position % bannerDataList.size();
         ImageView image = view.findViewById(R.id.banner_image_pic);
-        Glide.with(container.getContext()).load(bannerDataList.get(newPosition).getPic()).into(image);
+        Glide.with(container.getContext())
+                .load(bannerDataList.get(newPosition).getPic())
+                .into(image);
+        TextView text = view.findViewById(R.id.banner_type);
+        text.setBackgroundColor(SwitchColor.switchColor(bannerDataList.get(newPosition).getTitleColor()));
+        text.setText(bannerDataList.get(newPosition).getTypeTitle());
+
         container.addView(view);
         return view;
     }
@@ -36,6 +46,7 @@ public class LoopViewPagerAdapter extends PagerAdapter {
     public int getCount() {
         return bannerDataList.size();
     }
+
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {

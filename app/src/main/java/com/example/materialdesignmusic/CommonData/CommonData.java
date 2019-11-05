@@ -34,6 +34,7 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 public class CommonData {
+    public static String COOKIE = "";
     public static String ONE_LOOP = "one_loop"; //单曲循环
     public static String LIST_LOOP = "list_loop"; //列表循环
     public static String ORDER_PLAY = "order_play";//顺序播放
@@ -81,13 +82,9 @@ public class CommonData {
     }
     public static class GetMusicLyric implements okhttp3.Callback {
 
-        @Override
-        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-        }
 
         @Override
-        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        public void onResponse(@NotNull Call call, @NotNull okhttp3.Response response) throws IOException {
             final String strResponse = response.body().string();
             CommonData.NowMusicLyricData.clear(); //清空歌词列表
             try {
@@ -113,6 +110,10 @@ public class CommonData {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        @Override
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
         }
     }

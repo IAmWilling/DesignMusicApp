@@ -170,7 +170,7 @@
         </LinearLayout>
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/song_sheet_toolbar1"
-            app:navigationIcon="@drawable/back_white_iconfont"
+            app:navigationIcon="@drawable/ic_keyboard_backspace_white_18dp"
             android:layout_marginTop="15dp"
             android:elevation="5dp"
             android:layout_width="match_parent"
